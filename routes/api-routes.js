@@ -1,34 +1,31 @@
-//db
-const db = require('../models')
-module.exports = (app) => {
+const { Workout } = require("../models");
+var db = require("../models");
 
-    //Workout Routes//////
-    //get all workouts
-    app.get("/api/workouts", (req, res) => {
-        db.Workout.find({}, (err, workouts) => {
-            if(err){
-                console.log(err);
-            } else {
-                res.json(workouts)
-            }
-        });
+module.exports = function(app) {
+  app.get("/api/workouts", function(req, res) {
+    db.Workout.find({}).then(function(data) {
+      res.json(data);
     });
+  });
 
-    
-    //add exercise, assign id set true and push to model
-    app.put("/api/workouts/:workout", ({ params, body }, res) => {
-        db.Workout.findOneAndUpdate({ _id: params.id},
-         {$push: {excercises:body }},
-        { upsert: true, useFindandModify:false},
-        updatedWorkout => {
-        res.json(updatedWorkout);
-         })
+  app.get("/api/workouts/range", function(req, res) {
+    db.Workout.find({}).then(function(data) {
+      res.json(data);
     });
-    //post to create new workout
-    app.post('/api/workouts', (req,res) => {
-        db.Workout.create({}).then(newWorkout => {
-            res.json(newWorkout);
-        });
-    });
+  });
 
-}
+  app.post("/api/workouts", function(req, res) {
+    db.Workout.create(req.body).then(function(data) {
+      res.json(data);
+    });
+  });
+
+  app.put("/api/workouts/:id", (req, res) => {
+    // console.log(req.body)
+    // const workout = new Workout({exercises: req.body});
+    // workout.setTotalDuration();
+    db.Workout.updateOne({ _id: req.params.id },{$push: {exercises: req.body}}).then(function(dbPost) {
+      res.json(dbPost);
+    });
+  });
+};
